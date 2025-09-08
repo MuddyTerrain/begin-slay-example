@@ -1,0 +1,62 @@
+BeginSlay: Standard & Pro Launch Plan
+1. The Product Vision
+BeginSlay Standard: A one-time purchase on the Fab.com marketplace. It offers foundational AI editor tooling, serving as a gateway product to attract a wide user base.
+BeginSlay Pro: A monthly subscription ($8/month) sold via Gumroad, hosted on the custom subdomain store.muddyterrain.com. This is the flagship product with exclusive, high-value features like RAG-powered Blueprint/Code IntelliSense and advanced model support.
+2. Phase 1: Technical Infrastructure & Plugin Architecture (Pre-Launch)
+This phase is about building the core systems to support the tiered model and subscription service.
+2.1. Backend License Server on Google Cloud Platform (GCP)
+Action: Deploy a small, cost-effective virtual machine (e.g., e2-micro or e2-small) using Google Compute Engine. Your GCP credits will easily cover this.
+Tech Stack:
+OS: Ubuntu/Debian.
+Backend: Python with FastAPI or Node.js with Express.
+Database: SQLite is sufficient initially for storing license keys and their status (active, canceled, refunded).
+API Endpoints:
+POST /verify-license: Receives a license_key from the Unreal plugin, validates it against the Gumroad API, checks its status in the local DB, and returns a signed, temporary token (JWT) confirming validity.
+POST /gumroad-webhook: Receives "Ping" notifications from Gumroad for sale, cancellation, and refund events to automatically update the license status in the database.
+Security: Use HTTPS (via a load balancer or Caddy/Nginx). Store API credentials as environment variables, not in code.
+2.2. Sales Platforms & Domains
+Gumroad (Pro):
+Set up the BeginSlay Pro product as a recurring subscription.
+Configure the "Ping" URL to point to your GCP server's /gumroad-webhook endpoint.
+In your DNS provider, create a CNAME record for store pointing to domains.gumroad.com.
+Add store.muddyterrain.com as the custom domain in your Gumroad settings.
+Fab.com (Standard):
+Prepare the BeginSlay Standard product page.
+Ensure the description and plugin UI prominently feature an "Upgrade to Pro" link directing users to store.muddyterrain.com.
+2.3. Unreal Engine Plugin Architecture (Single Repo, Two Products & their example project)
+Plugins Module Structure:
+BeginSlay (Editor Module): Contains all Standard version features. This is the core product. Like all the connection to the usual python listners the project currently has, their cpp counter parts, all mcp related features except node generation (which will be greatly revamped, the MCP tools and their code, plugin settings etc etc., that we already currently have will be here, but will be greatly improved,  
+BeginSlayPro (Editor Module): Contains all exclusive Pro features (RAG, etc.). This module depends on BeginSlay. Will be shipped as a paid plugin, may be the project can have two plugins? With the latter having dependency on the former.
+Coming to pro features, first it RAG generation for all current unreal engine nodes or whatever + user created nodes, sounds extremely complicated but super necessary for the intellisense or blueprint node generation to work properly
+So user can open ANY bluprint, can open a hovering prompt text ui, where they can type what blueprint they wanna generate, the RAG system then will determine all necessary nodes proly and their input pin output pin etc, and then they will be packaged and sent to the LLM model in the backend, which will then generate the nodes text, (u know like the text you get when you copy nodes in unreal), which will be pasted in the editor, more advanced features will later follow. 
+The pro side will also have a really well built auth check feature that minimizes hacks etc, and only provides pro feature as long as the muddy’s server keeps validating the user;s token as a legit paid monthly one. I.e basically the license verification system.
+2.4. License Verification in Plugin (BeginSlayProEditor)
+On Editor Startup: The Pro module checks for a locally stored, valid license token.
+Activation Flow: If the token is missing or expired, Pro features are disabled. The UI prompts the user to enter their license key.
+Server Handshake:
+The plugin sends the user's key to your /verify-license endpoint.
+The server validates the key with Gumroad.
+The server returns a cryptographically signed JWT with an expiry date (e.g., valid for 7 days).
+Unlock Mechanism: The plugin verifies the JWT's signature, saves it locally, and unlocks all Pro features.
+Automatic Re-validation: The plugin will silently re-validate with the server in the background before the token expires to ensure the subscription remains active, making piracy inconvenient.
+3. Phase 2: Marketing & Launch (Go-to-Market)
+3.1. Pre-Launch Buzz (2-3 Weeks Out)
+Demos: Create compelling GIFs and short videos of the RAG IntelliSense in action. This is your killer feature.
+Content: Post demos and developer logs on your blog, X/Twitter, and LinkedIn.
+Landing Page: Set up a page on muddyterrain.com for BeginSlay Pro with a clear value prop, demos, and an email signup for a launch notification/discount.
+Community: Engage on Unreal Engine forums, Reddit (r/unrealengine), and relevant Discord servers.
+3.2. Launch Week
+Fab.com Submission: Submit the Standard version to the marketplace. Account for review time.
+Gumroad "Go Live": Make the Pro subscription public on store.muddyterrain.com.
+Full-Spectrum Announcement:
+Email your launch list.
+Publish a detailed blog post and a YouTube launch video.
+Announce across all social channels with links to both the Fab.com page and your Pro store.
+4. Phase 3: Post-Launch & Growth
+4.1. Support & Community
+Discord: Use your Discord server for dedicated support (#beginslay-support) and feedback (#beginslay-feedback).
+Documentation: Ensure docs are crystal clear, especially the Pro license activation steps.
+4.2. Content & Iteration
+Tutorials: Create video tutorials showcasing advanced Pro workflows.
+Feedback Loop: Listen to your first customers to build a feature roadmap.
+Updates: Release regular updates to fix bugs and add value, justifying the subscription.
