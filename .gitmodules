@@ -1,3 +1,6 @@
 [submodule "Plugins/BeginSlay"]
 	path = Plugins/BeginSlay
 	url = https://github.com/MuddyTerrain/BeginSlay.git
+[submodule "Plugins/BeginSlayPro"]
+	path = Plugins/BeginSlayPro
+	url = https://github.com/MuddyTerrain/BeginSlayPro.git

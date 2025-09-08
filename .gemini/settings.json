@@ -1,0 +1,11 @@
+{
+  "mcpServers": {
+    "unreal-engine-mcp": {
+      "command": "python",
+      "args": [
+        "Plugins/BeginSlay/Content/Python/mcp_server.py"
+      ],
+      "cwd": "Plugins/BeginSlay/Content/Python"
+    }
+  }
+}
